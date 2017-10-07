@@ -397,6 +397,9 @@ int set_mime_type_based_on_path(request *r)
   for(i=0;path[i];i++) 
     if (path[i]=='.') extension=&path[i+1];
 
+  fprintf(stderr,"Extension of [%s] is [%s]\n",
+          r->request.path,extension);
+
   // Check for known extensions
   for(i=0;mime_types[i].extension;i++) {
     if (!strcasecmp(mime_types[i].extension,extension)) {
