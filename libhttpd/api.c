@@ -373,46 +373,6 @@ request *httpdGetConnection(server, timeout)
 	return(r);
 }
 
-struct mime_type {
-  char *extension;
-  char *contentType;
-};
-
-struct mime_type mime_types[]={
-  {"apk","application/vnd.android.package-archive"},
-  {"css","text/css"},
-  {"jpg","image/jpeg"},
-  {"png","image/png"},
-  {NULL,NULL}
-};
-
-int set_mime_type_based_on_path(request *r)
-{
-  char *path=r->request.path;
-  char *mimetype=r->response.contentType;
-
-  // Find extension of file
-  char *extension=path;
-  int i;
-  for(i=0;path[i];i++) 
-    if (path[i]=='.') extension=&path[i+1];
-
-  fprintf(stderr,"Extension of [%s] is [%s]\n",
-          r->request.path,extension);
-
-  // Check for known extensions
-  for(i=0;mime_types[i].extension;i++) {
-    if (!strcasecmp(mime_types[i].extension,extension)) {
-      strcpy(r->request.path,mime_types[i].contentType);
-      return 0;
-    }
-  }
-
-
-  // Leave other file types with unchanged mime type
-  return 0;
-}
-
 int httpdReadRequest(httpd *server, request *r)
 {
 	static	char	buf[HTTP_MAX_LEN];
@@ -480,9 +440,6 @@ int httpdReadRequest(httpd *server, request *r)
                         r->request.path[HTTP_MAX_URL-1]=0;
 			_httpd_sanitiseUrl(r->request.path);
 
-			// Correct mime-type for GET requests
-                        if (r->request.method == HTTP_GET)
-                          set_mime_type_based_on_path(r);
 			continue;
 		}
 
